@@ -37,7 +37,7 @@ const fazerJogada = (req, res) => {
   // Retorna uma resposta para o cliente com o estado atualizado do jogo
   res
     .status(200)
-    .json({ message: "Jogada realizada com sucesso!", game: updatedGame });
+    .json({ message: "Jogada realizada com sucesso!", game: updateGame });
 };
 
 // Consultar o estado atual do jogo
@@ -49,8 +49,38 @@ const consultarEstadoJogo = (req, res) => {
   res.status(200).json({ game: currentGame });
 };
 
+const updateGame = (game, playerId, card) => {
+  // Encontre o jogador atual com base no ID do jogador
+  const currentPlayer = game.players.find((player) => player.id === playerId);
+
+  // Verifique se o jogador atual possui a carta em sua mão
+  const cardIndex = currentPlayer.hand.findIndex(
+    (c) => c.suit === card.suit && c.rank === card.rank
+  );
+  if (cardIndex === -1) {
+    throw new Error("Jogador não possui essa carta em sua mão.");
+  }
+
+  // Realize as ações necessárias com base na carta jogada
+  // Por exemplo, atualize o estado do jogo, remova a carta da mão do jogador, etc.
+  // ...
+
+  // Exemplo simples de remoção da carta da mão do jogador após a jogada
+  const removedCard = currentPlayer.hand.splice(cardIndex, 1)[0];
+
+  // Exemplo de atualização do estado do jogo após a jogada
+  game.lastMove = { player: currentPlayer.name, card: removedCard };
+  game.currentPlayer = (game.currentPlayer + 1) % game.players.length; // Avança para o próximo jogador
+
+  // Salve o estado atualizado do jogo (se necessário)
+  // ...
+
+  return game; // Retorna o estado atualizado do jogo
+};
+
 module.exports = {
   novoJogo,
   fazerJogada,
   consultarEstadoJogo,
+  updateGame,
 };
